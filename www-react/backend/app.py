@@ -147,85 +147,85 @@ def submit_trial(sequence_id, trial_index):
 ################################################################################
 # 5) Endpoint: finalize and compute final ranking
 ################################################################################
-@app.route("/api/trials/<int:sequence_id>/finalize", methods=["POST"])
-def finalize(sequence_id):
-    data = request.json
-    participant_name = data.get("participant_name")
-    if not participant_name:
-        return jsonify({"error": "Missing participant_name"}), 400
+# @app.route("/api/trials/<int:sequence_id>/finalize", methods=["POST"])
+# def finalize(sequence_id):
+#     data = request.json
+#     participant_name = data.get("participant_name")
+#     if not participant_name:
+#         return jsonify({"error": "Missing participant_name"}), 400
 
-    participant_id = get_or_create_participant(participant_name)
+#     participant_id = get_or_create_participant(participant_name)
 
-    # Load all trial_results for this sequence_id
-    db_manager.connect()
-    df_results = db_manager.read_table("trial_results")
-    df_results = df_results[
-        (df_results["sequence_id"] == sequence_id)
-        & (df_results["participant_id"] == participant_id)
-    ].copy()
+#     # Load all trial_results for this sequence_id
+#     db_manager.connect()
+#     df_results = db_manager.read_table("trial_results")
+#     df_results = df_results[
+#         (df_results["sequence_id"] == sequence_id)
+#         & (df_results["participant_id"] == participant_id)
+#     ].copy()
 
-    if df_results.empty:
-        return jsonify({"error": "No trial_results found for this participant and sequence."}), 404
+#     if df_results.empty:
+#         return jsonify({"error": "No trial_results found for this participant and sequence."}), 404
 
-    # Get all unique resource IDs involved
-    unique_resources = pd.unique(df_results[["best_stimulus", "worst_stimulus"]].values.ravel())
-    resource_list = sorted(unique_resources)
-    resource_index = {r_id: i for i, r_id in enumerate(resource_list)}
+#     # Get all unique resource IDs involved
+#     unique_resources = pd.unique(df_results[["best_stimulus", "worst_stimulus"]].values.ravel())
+#     resource_list = sorted(unique_resources)
+#     resource_index = {r_id: i for i, r_id in enumerate(resource_list)}
 
-    # Construct pairwise "best > worst" training data
-    rows = []
-    for _, row in df_results.iterrows():
-        b = row["best_stimulus"]
-        w = row["worst_stimulus"]
-        x = np.zeros(len(resource_list))
-        x[resource_index[b]] = +1  # Best gets +1
-        x[resource_index[w]] = -1  # Worst gets -1
-        rows.append((x, 1))  # Response variable (b > w)
+#     # Construct pairwise "best > worst" training data
+#     rows = []
+#     for _, row in df_results.iterrows():
+#         b = row["best_stimulus"]
+#         w = row["worst_stimulus"]
+#         x = np.zeros(len(resource_list))
+#         x[resource_index[b]] = +1  # Best gets +1
+#         x[resource_index[w]] = -1  # Worst gets -1
+#         rows.append((x, 1))  # Response variable (b > w)
 
-    # Convert to NumPy for logistic regression
-    X = np.array([r[0] for r in rows])
-    y = np.array([r[1] for r in rows])
+#     # Convert to NumPy for logistic regression
+#     X = np.array([r[0] for r in rows])
+#     y = np.array([r[1] for r in rows])
 
-    # Remove the last column as a reference to avoid singular matrix
-    X_reduced = X[:, :-1]  
-    model = sm.Logit(y, X_reduced)
+#     # Remove the last column as a reference to avoid singular matrix
+#     X_reduced = X[:, :-1]  
+#     model = sm.Logit(y, X_reduced)
 
-    try:
-        result = model.fit(disp=False)  # Fit model quietly
-    except Exception as e:
-        return jsonify({"error": f"Model fitting failed: {str(e)}"}), 500
+#     try:
+#         result = model.fit(disp=False)  # Fit model quietly
+#     except Exception as e:
+#         return jsonify({"error": f"Model fitting failed: {str(e)}"}), 500
 
-    # Get coefficients and append 0 for reference stimulus
-    coefs = result.params
-    full_params = list(coefs) + [0.0]
+#     # Get coefficients and append 0 for reference stimulus
+#     coefs = result.params
+#     full_params = list(coefs) + [0.0]
 
-    # Rank stimuli by estimated coefficients
-    resource_scores = []
-    for i, r_id in enumerate(resource_list):
-        resource_scores.append((r_id, full_params[i]))
+#     # Rank stimuli by estimated coefficients
+#     resource_scores = []
+#     for i, r_id in enumerate(resource_list):
+#         resource_scores.append((r_id, full_params[i]))
 
-    resource_scores.sort(key=lambda x: x[1], reverse=True)
+#     resource_scores.sort(key=lambda x: x[1], reverse=True)
 
-    # Fetch resource filenames from sequence_view
-    df_view = db_manager.read_table("sequence_view")
-    df_view = df_view[df_view["sequence_id"] == sequence_id].copy()
-    file_map = {row["resource_id"]: row["resource_filenames"] for _, row in df_view.iterrows()}
+#     # Fetch resource filenames from sequence_view
+#     df_view = db_manager.read_table("sequence_view")
+#     df_view = df_view[df_view["sequence_id"] == sequence_id].copy()
+#     file_map = {row["resource_id"]: row["resource_filenames"] for _, row in df_view.iterrows()}
 
-    # Format output JSON
-    sorted_stimuli = [
-        {
-            "resource_id": int(r_id),
-            "score": float(coeff),
-            "filename": file_map.get(r_id, ""),
-        }
-        for r_id, coeff in resource_scores
-    ]
+#     # Format output JSON
+#     sorted_stimuli = [
+#         {
+#             "resource_id": int(r_id),
+#             "score": float(coeff),
+#             "filename": file_map.get(r_id, ""),
+#         }
+#         for r_id, coeff in resource_scores
+#     ]
 
-    return jsonify({
-        "sorted_stimuli": sorted_stimuli,
-        "summary": str(result.summary()),
-        "message": "Final scores saved using Bradley-Terry-Luce (BTL)."
-    })
+#     return jsonify({
+#         "sorted_stimuli": sorted_stimuli,
+#         "summary": str(result.summary()),
+#         "message": "Final scores saved using Bradley-Terry-Luce (BTL)."
+#     })
 
 
 
