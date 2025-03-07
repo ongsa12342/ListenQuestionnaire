@@ -19,7 +19,7 @@ else:
 folder_name = "piano"
 
 # Build the destination directory path (downloading into backend static folder)
-destination_dir = os.path.join("..", "www-react", "backend", "static", folder_name)
+destination_dir = os.path.join("..", "www-react", "backend", "resources", folder_name)
 os.makedirs(destination_dir, exist_ok=True)
 
 # Download the folder using gdown (public link, no authentication needed)
