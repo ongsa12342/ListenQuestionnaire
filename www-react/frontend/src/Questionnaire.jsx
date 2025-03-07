@@ -23,8 +23,6 @@ import {
 } from "@mui/material";
 import ReactAudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/src/styles.scss";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import StopIcon from "@mui/icons-material/Stop";
 import CheckIcon from "@mui/icons-material/Check";
 
 function Questionnaire({ sequenceId, participantName }) {
@@ -61,12 +59,9 @@ function Questionnaire({ sequenceId, participantName }) {
         return () => clearInterval(timerId);
     }, []);
 
-    const apiHost = window.location.hostname;
-    const API_BASE_URL = `http://${apiHost}:5000`;
-
     useEffect(() => {
         setLoading(true);
-        fetch(`${API_BASE_URL}/api/trials/${sequenceId}`)
+        fetch(`/api/trials / ${sequenceId}`)
             .then((res) => res.json())
             .then((data) => {
                 if (data.error) {
@@ -77,7 +72,7 @@ function Questionnaire({ sequenceId, participantName }) {
                     const updatedAudioMap = Object.fromEntries(
                         Object.entries(data.audio_map).map(([key, path]) => [
                             key,
-                            `${API_BASE_URL}/${path.replace(/\\/g, "/")}`,
+                            `/ ${path.replace(/\\/g, "/")}`,
                         ])
                     );
                     setAudioMap(updatedAudioMap);
@@ -128,6 +123,35 @@ function Questionnaire({ sequenceId, participantName }) {
         setIsPlaying(false);
     }, [currentTrialIndex]);
 
+    function handleSkipTrial() {
+        setLoading(true);
+        // Instead of relying on radio selections, we explicitly mark this trial as skipped
+        fetch(`/ api / trials / ${sequenceId} / ${currentTrialIndex} / submit`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                participant_name: participantName,
+                best_stimulus: null,  // using -1 to denote skipped
+                worst_stimulus: null, // using -1 to denote skipped
+                resources_in_trial: trials[currentTrialIndex],
+            }),
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.error) {
+                    showSnackbar(data.error, "error");
+                } else {
+                    showSnackbar("Trial skipped successfully!", "success");
+                    // Move on to next trial
+                    setCurrentTrialIndex((i) => i + 1);
+                }
+            })
+            .catch((err) => {
+                showSnackbar("Error skipping trial.", "error");
+                console.error(err);
+            })
+            .finally(() => setLoading(false));
+    }
 
 
     function handleSubmitTrial() {
@@ -141,7 +165,7 @@ function Questionnaire({ sequenceId, participantName }) {
         }
 
         setLoading(true);
-        fetch(`${API_BASE_URL}/api/trials/${sequenceId}/${currentTrialIndex}/submit`, {
+        fetch(`/ api / trials / ${sequenceId} / ${currentTrialIndex} / submit`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -171,7 +195,7 @@ function Questionnaire({ sequenceId, participantName }) {
 
     function handleFinish() {
         setLoading(true);
-        fetch(`${API_BASE_URL}/api/trials/${sequenceId}/finalize`, {
+        fetch(`/ api / trials / ${sequenceId} / finalize`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ participant_name: participantName }),
@@ -415,6 +439,14 @@ function Questionnaire({ sequenceId, participantName }) {
                     sx={{ mr: 2, textTransform: "none", borderRadius: 0, fontWeight: "bold", px: 3 }}
                 >
                     Submit
+                </Button>
+                <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={handleSkipTrial}
+                    sx={{ textTransform: "none", borderRadius: 0, fontWeight: "bold", px: 3 }}
+                >
+                    Skip
                 </Button>
             </Box>
 

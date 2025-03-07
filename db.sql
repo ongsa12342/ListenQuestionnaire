@@ -38,6 +38,9 @@ CREATE TABLE IF NOT EXISTS sequence_info (
     n_trials INT NOT NULL
 );
 
+ALTER TABLE sequence_info
+ADD UNIQUE (sequence_id);
+
 -- 5) A view that joins sequence_info + resources
 CREATE OR REPLACE VIEW sequence_view AS
 SELECT
@@ -65,8 +68,8 @@ CREATE TABLE IF NOT EXISTS trial_results (
     participant_id INT NOT NULL,        -- references participants(id)
     sequence_id INT NOT NULL,           -- references sequence_info(sequence_id) or just an int
     trial_index INT NOT NULL,           -- which trial? (0, 1, 2, ...)
-    best_stimulus INT NOT NULL,      -- references resources(id)
-    worst_stimulus INT NOT NULL,     -- references resources(id)
+    best_stimulus INT NULL,      -- references resources(id)
+    worst_stimulus INT NULL,     -- references resources(id)
     submitted_at DATETIME NOT NULL,     -- when did user press "Submit"?
     FOREIGN KEY (participant_id) REFERENCES participants(id),
     FOREIGN KEY (best_stimulus) REFERENCES resources(id),

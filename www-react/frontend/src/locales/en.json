@@ -1,0 +1,18 @@
+{
+  "landingPage": {
+    "title": "Welcome to the Questionnaire",
+    "description": "This questionnaire is designed to gather your opinions on various audio stimuli as part of a research study. In each trial, you will listen to a set of audio clips and select the option you think is the best and the one you think is the worst. Your feedback will help us understand preferences and make informed improvements.",
+    "whatToDo": "What to Do:",
+    "steps": {
+      "listen": "Listen: Play the audio clips provided in each trial.",
+      "select": "Select: Choose the best and worst stimuli for each trial.",
+      "submit": "Submit: Confirm your choices and move on to the next trial."
+    },
+    "finalNote": "This study is being conducted as part of my senior project at FIBO KMUTT and is strictly for research purposes.",
+    "nameLabel": "Your Name",
+    "nameError": "Please enter your name to continue.",
+    "consentText": "I consent to the collection and use of my data for research purposes.",
+    "consentError": "Please agree to proceed.",
+    "startButton": "Start Questionnaire"
+  }
+}

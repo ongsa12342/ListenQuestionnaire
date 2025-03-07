@@ -1,0 +1,8 @@
+flask 
+flask-cors 
+pandas 
+numpy 
+statsmodels 
+python-dotenv 
+sqlalchemy 
+mysql-connector-python

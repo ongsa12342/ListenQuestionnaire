@@ -121,11 +121,11 @@ def submit_trial(sequence_id, trial_index):
     worst_res_id = data.get("worst_stimulus")
     resources_in_trial = data.get("resources_in_trial", [])
 
-    if not participant_name or best_res_id is None or worst_res_id is None:
+    if not participant_name:
         return jsonify({"error": "Missing fields in request"}), 400
 
-    if best_res_id == worst_res_id:
-        return jsonify({"error": "best_stimulus and worst_stimulus cannot be the same"}), 400
+    # if best_res_id == worst_res_id:
+    #     return jsonify({"error": "best_stimulus and worst_stimulus cannot be the same"}), 400
 
     participant_id = get_or_create_participant(participant_name)
 
