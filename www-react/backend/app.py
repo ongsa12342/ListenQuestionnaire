@@ -10,6 +10,15 @@ from database_utils import DBManager  # Your existing DB logic
 import statsmodels.api as sm
 import numpy as np
 
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
 app = Flask(__name__)
 CORS(app)  # Enable CORS so React can call this API from a different domain/port
 
@@ -91,8 +100,7 @@ def get_trials(sequence_id):
         
         audio_path = row["resource_folder_paths"]
         audio_map[res_id] = audio_path
-        
-        print(audio_map)
+        logging.info(f"audio_map: {audio_map}")
 
     return jsonify({
         "trials": trials,                # list of lists
