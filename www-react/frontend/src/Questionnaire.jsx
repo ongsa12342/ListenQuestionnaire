@@ -61,7 +61,7 @@ function Questionnaire({ sequenceId, participantName }) {
 
     useEffect(() => {
         setLoading(true);
-        fetch(`/api/trials / ${sequenceId}`)
+        fetch(`/api/trials/${sequenceId}`)
             .then((res) => res.json())
             .then((data) => {
                 if (data.error) {
@@ -126,7 +126,7 @@ function Questionnaire({ sequenceId, participantName }) {
     function handleSkipTrial() {
         setLoading(true);
         // Instead of relying on radio selections, we explicitly mark this trial as skipped
-        fetch(`/ api / trials / ${sequenceId} / ${currentTrialIndex} / submit`, {
+        fetch(`/api/trials/${sequenceId}/${currentTrialIndex}/submit`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -165,7 +165,7 @@ function Questionnaire({ sequenceId, participantName }) {
         }
 
         setLoading(true);
-        fetch(`/ api / trials / ${sequenceId} / ${currentTrialIndex} / submit`, {
+        fetch(`/api/trials/${sequenceId}/${currentTrialIndex}/submit`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -195,7 +195,7 @@ function Questionnaire({ sequenceId, participantName }) {
 
     function handleFinish() {
         setLoading(true);
-        fetch(`/ api / trials / ${sequenceId} / finalize`, {
+        fetch(`/api/trials/${sequenceId}/finalize`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ participant_name: participantName }),
