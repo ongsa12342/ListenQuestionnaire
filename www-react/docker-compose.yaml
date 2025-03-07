@@ -2,15 +2,6 @@ version: '3.8'
 
 services:
 
-  mysql:
-    image: mysql:8
-    container_name: mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
-    ports:
-      - "3306:3306"
-
   backend:
     build:
       context: ./backend
@@ -20,8 +11,6 @@ services:
       - "5000:5000"
     env_file:
       - .env
-    depends_on:
-      - mysql
 
   frontend:
     build:
