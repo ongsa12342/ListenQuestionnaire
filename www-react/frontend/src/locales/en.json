@@ -1,18 +1,41 @@
 {
   "landingPage": {
     "title": "Welcome to the Questionnaire",
-    "description": "This questionnaire is designed to gather your opinions on various audio stimuli as part of a research study. In each trial, you will listen to a set of audio clips and select the option you think is the best and the one you think is the worst. Your feedback will help us understand preferences and make informed improvements.",
-    "whatToDo": "What to Do:",
+    "description": "This questionnaire gathers your opinions on various audio stimuli for a research study. In each trial, you'll listen to a set of audio clips and select the clips you perceive as having the most <strong>warmth</strong> and the most <strong>cold</strong>. Your feedback helps us understand listener preferences and guides future improvements.",
+    "whatToDo": "Instructions:",
     "steps": {
-      "listen": "Listen: Play the audio clips provided in each trial.",
-      "select": "Select: Choose the best and worst stimuli for each trial.",
-      "submit": "Submit: Confirm your choices and move on to the next trial."
+      "listen": "Listen: Play each of the provided audio clips.",
+      "select": "Select: Identify the audio clips with the most <strong>warmth</strong> and the most <strong>cold</strong> in each trial.",
+      "submit": "Submit: Confirm your selections and proceed to the next trial."
     },
-    "finalNote": "This study is being conducted as part of my senior project at FIBO KMUTT and is strictly for research purposes.",
+    "finalNote": "This study is conducted as part of my senior project at FIBO KMUTT and is exclusively for research purposes.",
     "nameLabel": "Your Name",
     "nameError": "Please enter your name to continue.",
     "consentText": "I consent to the collection and use of my data for research purposes.",
     "consentError": "Please agree to proceed.",
     "startButton": "Start Questionnaire"
+  },
+  "questionnaire": {
+    "trialInfo": "Trial {{current}} of {{total}}",
+    "nowPlaying": "Now Playing:",
+    "participant": "Participant: {{participantName}}",
+    "stimulus": "Stimulus",
+    "mostWarmth": "Most Warmth",
+    "mostCold": "Most Cold",
+    "submit": "Submit",
+    "skip": "Skip",
+    "noTrials": "No trials available.",
+    "loading": "Loading...",
+    "completeMessage": "All Trials Completed!",
+    "thankYou": "Thank You for Participating!",
+    "resultsMessage": "Here are the final rankings of the stimuli based on your selections:",
+    "restart": "Restart",
+    "errorSkipping": "Error skipping trial.",
+    "trialSkipped": "Trial skipped successfully!",
+    "errorSubmitting": "Error submitting trial.",
+    "trialSubmitted": "Trial submitted successfully!",
+    "selectBoth": "Please select both the Most Warmth and the Most Cold.",
+    "sameSelection": "Most Warmth and Most Cold cannot be the same!",
+    "finalizeResults": "Finalize and See Results"
   }
 }

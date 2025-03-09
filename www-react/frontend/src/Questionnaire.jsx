@@ -1,4 +1,3 @@
-// Questionnaire.jsx
 import React, { useState, useEffect } from "react";
 import {
     Container,
@@ -24,8 +23,12 @@ import {
 import ReactAudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/src/styles.scss";
 import CheckIcon from "@mui/icons-material/Check";
+import Cookies from "js-cookie";
+import { useTranslation } from "react-i18next";
 
 function Questionnaire({ sequenceId, participantName }) {
+    const { t } = useTranslation();
+
     const [trials, setTrials] = useState([]);
     const [audioMap, setAudioMap] = useState({});
     const [currentTrialIndex, setCurrentTrialIndex] = useState(0);
@@ -38,20 +41,31 @@ function Questionnaire({ sequenceId, participantName }) {
         severity: "info",
     });
     const [finalResults, setFinalResults] = useState(null);
-
-    // Which audio is currently loaded in the player
     const [currentAudioSrc, setCurrentAudioSrc] = useState("");
-
     const [timeUsed, setTimeUsed] = useState(0);
 
     const formatTime = (seconds) => {
         const minutes = Math.floor(seconds / 60);
         const secs = seconds % 60;
-        return `${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+        return `${minutes.toString().padStart(2, "0")}:${secs
+            .toString()
+            .padStart(2, "0")}`;
     };
 
+    // Load persisted state on component mount
+    useEffect(() => {
+        const savedTrialIndex = Cookies.get("currentTrialIndex");
+        if (savedTrialIndex) {
+            setCurrentTrialIndex(parseInt(savedTrialIndex, 10));
+        }
+    }, []);
 
-    // Update the useEffect for the timer:
+    // Persist currentTrialIndex whenever it changes
+    useEffect(() => {
+        Cookies.set("currentTrialIndex", currentTrialIndex, { expires: 7 });
+    }, [currentTrialIndex]);
+
+    // Timer update
     useEffect(() => {
         const timerId = setInterval(() => {
             setTimeUsed((prev) => prev + 1);
@@ -59,6 +73,7 @@ function Questionnaire({ sequenceId, participantName }) {
         return () => clearInterval(timerId);
     }, []);
 
+    // Fetch trials and audio info
     useEffect(() => {
         setLoading(true);
         fetch(`/api/trials/${sequenceId}`)
@@ -67,8 +82,7 @@ function Questionnaire({ sequenceId, participantName }) {
                 if (data.error) {
                     showSnackbar(data.error, "error");
                 } else {
-                    setTrials(data.trials); // e.g. [[resId1, resId2], ...]
-                    // Prepend STATIC_URL to each audio file path if needed
+                    setTrials(data.trials);
                     const updatedAudioMap = Object.fromEntries(
                         Object.entries(data.audio_map).map(([key, path]) => [
                             key,
@@ -96,26 +110,24 @@ function Questionnaire({ sequenceId, participantName }) {
     const [audioPlayer, setAudioPlayer] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
 
-
     function handleLoadAudio(resourceId) {
         const audioPath = audioMap[resourceId];
         if (!audioPath) return;
 
         if (currentAudioSrc === audioPath && isPlaying) {
-            // Stop if the same audio is playing
             audioPlayer.audio.current.pause();
             setIsPlaying(false);
         } else {
-            // Play new audio
             setCurrentAudioSrc(audioPath);
-            setTimeout(() => {
-                if (audioPlayer) {
-                    audioPlayer.audio.current.play();
-                    setIsPlaying(true);
-                }
-            }, 100);
         }
     }
+
+    useEffect(() => {
+        if (audioPlayer && currentAudioSrc) {
+            audioPlayer.audio.current.play();
+            setIsPlaying(true);
+        }
+    }, [currentAudioSrc, audioPlayer]);
 
     // Reset playback state when moving to next trial
     useEffect(() => {
@@ -125,42 +137,39 @@ function Questionnaire({ sequenceId, participantName }) {
 
     function handleSkipTrial() {
         setLoading(true);
-        // Instead of relying on radio selections, we explicitly mark this trial as skipped
         fetch(`/api/trials/${sequenceId}/${currentTrialIndex}/submit`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 participant_name: participantName,
-                best_stimulus: null,  // using -1 to denote skipped
-                worst_stimulus: null, // using -1 to denote skipped
+                best_stimulus: null,
+                worst_stimulus: null,
                 resources_in_trial: trials[currentTrialIndex],
             }),
         })
             .then((res) => res.json())
             .then((data) => {
                 if (data.error) {
-                    showSnackbar(data.error, "error");
+                    showSnackbar(t("questionnaire.errorSkipping"), "error");
                 } else {
-                    showSnackbar("Trial skipped successfully!", "success");
-                    // Move on to next trial
+                    showSnackbar(t("questionnaire.trialSkipped"), "success");
                     setCurrentTrialIndex((i) => i + 1);
                 }
             })
             .catch((err) => {
-                showSnackbar("Error skipping trial.", "error");
+                showSnackbar(t("questionnaire.errorSkipping"), "error");
                 console.error(err);
             })
             .finally(() => setLoading(false));
     }
 
-
     function handleSubmitTrial() {
         if (bestChoice == null || worstChoice == null) {
-            showSnackbar("Please select both Best and Worst.", "warning");
+            showSnackbar(t("questionnaire.selectBoth"), "warning");
             return;
         }
         if (bestChoice === worstChoice) {
-            showSnackbar("Best and Worst cannot be the same!", "warning");
+            showSnackbar(t("questionnaire.sameSelection"), "warning");
             return;
         }
 
@@ -178,16 +187,16 @@ function Questionnaire({ sequenceId, participantName }) {
             .then((res) => res.json())
             .then((data) => {
                 if (data.error) {
-                    showSnackbar(data.error, "error");
+                    showSnackbar(t("questionnaire.errorSubmitting"), "error");
                 } else {
-                    showSnackbar("Trial submitted successfully!", "success");
+                    showSnackbar(t("questionnaire.trialSubmitted"), "success");
                     setBestChoice(null);
                     setWorstChoice(null);
                     setCurrentTrialIndex((i) => i + 1);
                 }
             })
             .catch((err) => {
-                showSnackbar("Error submitting trial.", "error");
+                showSnackbar(t("questionnaire.errorSubmitting"), "error");
                 console.error(err);
             })
             .finally(() => setLoading(false));
@@ -205,8 +214,8 @@ function Questionnaire({ sequenceId, participantName }) {
                 if (data.error) {
                     showSnackbar(data.error, "error");
                 } else {
-                    setFinalResults(data.sorted_stimuli); // Save the final results
-                    showSnackbar("All trials completed!", "success");
+                    setFinalResults(data.sorted_stimuli);
+                    showSnackbar(t("questionnaire.completeMessage"), "success");
                 }
             })
             .catch((err) => {
@@ -217,6 +226,15 @@ function Questionnaire({ sequenceId, participantName }) {
     }
 
     if (finalResults) {
+        // Function to reset the cookie(s) and restart the trial
+        const handleRestart = () => {
+            // Remove the trial progress cookie (and any others if needed)
+            Cookies.remove("currentTrialIndex");
+            // Optionally, remove the participant name cookie:
+            // Cookies.remove("participantName");
+            window.location.reload();
+        };
+
         return (
             <Container maxWidth="md" sx={{ mt: 5, textAlign: "center" }}>
                 <Box
@@ -230,10 +248,10 @@ function Questionnaire({ sequenceId, participantName }) {
                 >
                     <CheckIcon sx={{ fontSize: 60, color: "green", mb: 2 }} />
                     <Typography variant="h4" gutterBottom>
-                        Thank You for Participating!
+                        {t("questionnaire.thankYou")}
                     </Typography>
                     <Typography variant="body1" sx={{ mb: 3 }}>
-                        Here are the final rankings of the stimuli based on your selections:
+                        {t("questionnaire.resultsMessage")}
                     </Typography>
                     <Fade in={true} timeout={600}>
                         <Box
@@ -251,7 +269,8 @@ function Questionnaire({ sequenceId, participantName }) {
                                         maxWidth: 400,
                                         p: 2,
                                         my: 1,
-                                        backgroundColor: index === 0 ? "primary.main" : "grey.100",
+                                        backgroundColor:
+                                            index === 0 ? "primary.main" : "grey.100",
                                         color: index === 0 ? "white" : "black",
                                         borderRadius: 2,
                                         boxShadow: 1,
@@ -259,10 +278,10 @@ function Questionnaire({ sequenceId, participantName }) {
                                         textAlign: "center",
                                     }}
                                 >
-                                    {index + 1}. {stimulus.filename} - Score: {stimulus.score} - {stimulus.resource_id}
+                                    {index + 1}. {stimulus.filename} - Score: {stimulus.score} -{" "}
+                                    {stimulus.resource_id}
                                 </Box>
                             ))}
-
                         </Box>
                     </Fade>
                     <Button
@@ -271,28 +290,55 @@ function Questionnaire({ sequenceId, participantName }) {
                         sx={{ mt: 3, px: 4, borderRadius: 2 }}
                         onClick={() => window.location.reload()}
                     >
-                        Restart
+                        {t("questionnaire.restart")}
                     </Button>
+                    {/* Additional box for "Do Trial Again" that resets the cookie */}
+                    <Box
+                        sx={{
+                            mt: 3,
+                            border: "1px dashed grey",
+                            p: 2,
+                            borderRadius: 2,
+                        }}
+                    >
+                        <Typography variant="subtitle1" gutterBottom>
+                            {t("questionnaire.doTrialAgain")}
+                        </Typography>
+                        <Button
+                            variant="outlined"
+                            color="secondary"
+                            onClick={handleRestart}
+                        >
+                            {t("questionnaire.resetAndRestart")}
+                        </Button>
+                    </Box>
                 </Box>
             </Container>
         );
     }
 
-
     if (currentTrialIndex >= trials.length && trials.length > 0) {
         return (
             <Container maxWidth="md" sx={{ mt: 5 }}>
                 <Typography variant="h4" gutterBottom>
-                    All Trials Completed!
+                    {t("questionnaire.completeMessage")}
                 </Typography>
                 <Typography variant="body1" sx={{ mb: 3 }}>
-                    Thank you for participating, {participantName}.
+                    {t("questionnaire.participant", { participantName })}
                 </Typography>
                 <Button variant="contained" onClick={handleFinish}>
-                    Finalize and See Results
+                    {t("questionnaire.finalizeResults")}
                 </Button>
-                <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={handleCloseSnackbar}>
-                    <Alert severity={snackbar.severity} onClose={handleCloseSnackbar} sx={{ width: "100%" }}>
+                <Snackbar
+                    open={snackbar.open}
+                    autoHideDuration={3000}
+                    onClose={handleCloseSnackbar}
+                >
+                    <Alert
+                        severity={snackbar.severity}
+                        onClose={handleCloseSnackbar}
+                        sx={{ width: "100%" }}
+                    >
                         {snackbar.message}
                     </Alert>
                 </Snackbar>
@@ -305,7 +351,7 @@ function Questionnaire({ sequenceId, participantName }) {
             <Container maxWidth="md" sx={{ mt: 5, textAlign: "center" }}>
                 <CircularProgress />
                 <Typography variant="body1" sx={{ mt: 2 }}>
-                    Loading...
+                    {t("questionnaire.loading")}
                 </Typography>
             </Container>
         );
@@ -314,17 +360,19 @@ function Questionnaire({ sequenceId, participantName }) {
     if (trials.length === 0) {
         return (
             <Container maxWidth="md" sx={{ mt: 5 }}>
-                <Typography variant="h6">No trials available.</Typography>
+                <Typography variant="h6">
+                    {t("questionnaire.noTrials")}
+                </Typography>
             </Container>
         );
     }
 
     const resourcesInCurrentTrial = trials[currentTrialIndex];
-    const progressValue = ((currentTrialIndex + 1) / trials.length) * 100;
+    const progressValue =
+        ((currentTrialIndex + 1) / trials.length) * 100;
 
     return (
         <Container maxWidth="md" sx={{ mt: 5 }}>
-            {/* Progress and Timer in the same row */}
             <Box
                 sx={{
                     mb: 2,
@@ -334,7 +382,10 @@ function Questionnaire({ sequenceId, participantName }) {
                 }}
             >
                 <Typography variant="body2">
-                    Trial {currentTrialIndex + 1} of {trials.length}
+                    {t("questionnaire.trialInfo", {
+                        current: currentTrialIndex + 1,
+                        total: trials.length,
+                    })}
                 </Typography>
                 <Typography variant="body2" color="primary">
                     {formatTime(timeUsed)}
@@ -347,38 +398,45 @@ function Questionnaire({ sequenceId, participantName }) {
                     Questionnaire
                 </Typography>
                 <Typography variant="subtitle1" sx={{ mb: 2 }}>
-                    Participant: {participantName}
+                    {t("questionnaire.participant", { participantName })}
                 </Typography>
             </Box>
 
             {currentAudioSrc && (
                 <Box sx={{ mb: 3 }}>
                     <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                        Now Playing:
+                        {t("questionnaire.nowPlaying")}
                     </Typography>
                     <ReactAudioPlayer
                         ref={(player) => setAudioPlayer(player)}
                         src={currentAudioSrc}
                         controls
-                        showJumpControls={false} // Remove skip buttons
+                        onLoadedMetadata={(e) => {
+                            e.target.play();
+                            setIsPlaying(true);
+                        }}
+                        showJumpControls={false}
                         showDownloadProgress={false}
                         showFilledProgress={false}
                         style={{ width: "100%" }}
                     />
-
                 </Box>
             )}
-
-
 
             <Fade in={true} timeout={600}>
                 <TableContainer component={Paper} sx={{ mb: 3 }}>
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell sx={{ fontWeight: "bold" }}>Stimulus</TableCell>
-                                <TableCell sx={{ fontWeight: "bold" }}>Best</TableCell>
-                                <TableCell sx={{ fontWeight: "bold" }}>Worst</TableCell>
+                                <TableCell sx={{ fontWeight: "bold" }}>
+                                    {t("questionnaire.stimulus")}
+                                </TableCell>
+                                <TableCell sx={{ fontWeight: "bold" }}>
+                                    {t("questionnaire.mostWarmth")}
+                                </TableCell>
+                                <TableCell sx={{ fontWeight: "bold" }}>
+                                    {t("questionnaire.mostCold")}
+                                </TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -386,12 +444,20 @@ function Questionnaire({ sequenceId, participantName }) {
                                 <TableRow key={resId}>
                                     <TableCell>
                                         <Button
-                                            variant={audioMap[resId] === currentAudioSrc ? "contained" : "outlined"}
-                                            color={audioMap[resId] === currentAudioSrc ? "secondary" : "primary"}
+                                            variant={
+                                                audioMap[resId] === currentAudioSrc
+                                                    ? "contained"
+                                                    : "outlined"
+                                            }
+                                            color={
+                                                audioMap[resId] === currentAudioSrc
+                                                    ? "secondary"
+                                                    : "primary"
+                                            }
                                             onClick={() => handleLoadAudio(resId)}
                                             sx={{
                                                 textTransform: "none",
-                                                borderRadius: 0, // Square button style (minimal design)
+                                                borderRadius: 0,
                                                 fontWeight: "bold",
                                             }}
                                         >
@@ -438,7 +504,7 @@ function Questionnaire({ sequenceId, participantName }) {
                     onClick={handleSubmitTrial}
                     sx={{ mr: 2, textTransform: "none", borderRadius: 0, fontWeight: "bold", px: 3 }}
                 >
-                    Submit
+                    {t("questionnaire.submit")}
                 </Button>
                 <Button
                     variant="outlined"
@@ -446,7 +512,7 @@ function Questionnaire({ sequenceId, participantName }) {
                     onClick={handleSkipTrial}
                     sx={{ textTransform: "none", borderRadius: 0, fontWeight: "bold", px: 3 }}
                 >
-                    Skip
+                    {t("questionnaire.skip")}
                 </Button>
             </Box>
 
