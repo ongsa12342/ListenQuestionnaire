@@ -226,12 +226,9 @@ function Questionnaire({ sequenceId, participantName }) {
     }
 
     if (finalResults) {
-        // Function to reset the cookie(s) and restart the trial
+        // Reset only the trial progress cookie and reload the page
         const handleRestart = () => {
-            // Remove the trial progress cookie (and any others if needed)
             Cookies.remove("currentTrialIndex");
-            // Optionally, remove the participant name cookie:
-            // Cookies.remove("participantName");
             window.location.reload();
         };
 
@@ -269,8 +266,7 @@ function Questionnaire({ sequenceId, participantName }) {
                                         maxWidth: 400,
                                         p: 2,
                                         my: 1,
-                                        backgroundColor:
-                                            index === 0 ? "primary.main" : "grey.100",
+                                        backgroundColor: index === 0 ? "primary.main" : "grey.100",
                                         color: index === 0 ? "white" : "black",
                                         borderRadius: 2,
                                         boxShadow: 1,
@@ -278,8 +274,7 @@ function Questionnaire({ sequenceId, participantName }) {
                                         textAlign: "center",
                                     }}
                                 >
-                                    {index + 1}. {stimulus.filename} - Score: {stimulus.score} -{" "}
-                                    {stimulus.resource_id}
+                                    {index + 1}. {stimulus.filename} - Score: {stimulus.score} - {stimulus.resource_id}
                                 </Box>
                             ))}
                         </Box>
@@ -292,7 +287,7 @@ function Questionnaire({ sequenceId, participantName }) {
                     >
                         {t("questionnaire.restart")}
                     </Button>
-                    {/* Additional box for "Do Trial Again" that resets the cookie */}
+                    {/* "Do Trial Again" box that resets only the trial cookie */}
                     <Box
                         sx={{
                             mt: 3,
@@ -317,18 +312,35 @@ function Questionnaire({ sequenceId, participantName }) {
         );
     }
 
+
     if (currentTrialIndex >= trials.length && trials.length > 0) {
+        // Add a function to reset the cookie
+        const handleRestart = () => {
+            Cookies.remove("currentTrialIndex");
+            window.location.reload();
+        };
+
         return (
-            <Container maxWidth="md" sx={{ mt: 5 }}>
+            <Container maxWidth="md" sx={{ mt: 5, textAlign: "center" }}>
                 <Typography variant="h4" gutterBottom>
                     {t("questionnaire.completeMessage")}
                 </Typography>
                 <Typography variant="body1" sx={{ mb: 3 }}>
                     {t("questionnaire.participant", { participantName })}
                 </Typography>
+
+                {/* Finalize button */}
                 <Button variant="contained" onClick={handleFinish}>
                     {t("questionnaire.finalizeResults")}
                 </Button>
+
+                {/* RESTART BUTTON (clears the trial cookie and restarts) */}
+                <Box sx={{ mt: 2 }}>
+                    <Button variant="outlined" color="secondary" onClick={handleRestart}>
+                        {t("questionnaire.restart")}
+                    </Button>
+                </Box>
+
                 <Snackbar
                     open={snackbar.open}
                     autoHideDuration={3000}
@@ -345,6 +357,7 @@ function Questionnaire({ sequenceId, participantName }) {
             </Container>
         );
     }
+
 
     if (loading) {
         return (

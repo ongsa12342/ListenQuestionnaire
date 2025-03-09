@@ -29,13 +29,15 @@
     "completeMessage": "All Trials Completed!",
     "thankYou": "Thank You for Participating!",
     "resultsMessage": "Here are the final rankings of the stimuli based on your selections:",
-    "restart": "Restart",
+    "restart": "Restart the Questionaire",
     "errorSkipping": "Error skipping trial.",
     "trialSkipped": "Trial skipped successfully!",
     "errorSubmitting": "Error submitting trial.",
     "trialSubmitted": "Trial submitted successfully!",
     "selectBoth": "Please select both the Most Warmth and the Most Cold.",
     "sameSelection": "Most Warmth and Most Cold cannot be the same!",
+    "doTrialAgain": "Do it again",
+    "resetAndRestart": "Reset and Restart",
     "finalizeResults": "Finalize and See Results"
   }
 }

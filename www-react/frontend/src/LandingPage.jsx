@@ -28,6 +28,14 @@ function LandingPage({ onStart }) {
         }
     }, []);
 
+    // Load language from cookie if it exists
+    useEffect(() => {
+        const savedLang = Cookies.get("lang");
+        if (savedLang) {
+            i18n.changeLanguage(savedLang);
+        }
+    }, [i18n]);
+
     const handleSubmit = (e) => {
         e.preventDefault();
         if (name.trim() === "") {
@@ -49,6 +57,7 @@ function LandingPage({ onStart }) {
 
     const handleLanguageChange = (lng) => {
         i18n.changeLanguage(lng);
+        Cookies.set("lang", lng, { expires: 7 });
     };
 
     return (
@@ -67,7 +76,15 @@ function LandingPage({ onStart }) {
                 </Button>
             </Box>
 
-            <Box sx={{ textAlign: "left", mb: 4, p: 3, border: "1px solid #ccc", borderRadius: 2 }}>
+            <Box
+                sx={{
+                    textAlign: "left",
+                    mb: 4,
+                    p: 3,
+                    border: "1px solid #ccc",
+                    borderRadius: 2,
+                }}
+            >
                 <Typography variant="h4" gutterBottom>
                     {t("landingPage.title")}
                 </Typography>
@@ -78,14 +95,22 @@ function LandingPage({ onStart }) {
                     dangerouslySetInnerHTML={{ __html: t("landingPage.description") }}
                 />
 
-                <ul style={{ margin: 0, paddingLeft: "1.25rem", marginBottom: "1rem" }}>
+                <ul
+                    style={{
+                        margin: 0,
+                        paddingLeft: "1.25rem",
+                        marginBottom: "1rem",
+                    }}
+                >
                     <li>
                         <strong>{t("landingPage.steps.listen").split(":")[0]}:</strong>
                         {t("landingPage.steps.listen").split(":")[1]}
                     </li>
                     <li
                         dangerouslySetInnerHTML={{
-                            __html: `<strong>${t("landingPage.steps.select").split(":")[0]}:</strong> ${t("landingPage.steps.select").split(":")[1]}`
+                            __html: `<strong>${t("landingPage.steps.select").split(":")[0]}:</strong> ${t(
+                                "landingPage.steps.select"
+                            ).split(":")[1]}`,
                         }}
                     />
                     <li>
@@ -121,7 +146,11 @@ function LandingPage({ onStart }) {
                                         }}
                                     />
                                 }
-                                label={<span style={{ fontSize: "0.9rem" }}>{t("landingPage.consentText")}</span>}
+                                label={
+                                    <span style={{ fontSize: "0.9rem" }}>
+                                        {t("landingPage.consentText")}
+                                    </span>
+                                }
                             />
                             {agreeError && (
                                 <FormHelperText error>
