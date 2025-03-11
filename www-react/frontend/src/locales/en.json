@@ -1,7 +1,7 @@
 {
   "landingPage": {
     "title": "Welcome to the Questionnaire",
-    "description": "This questionnaire gathers your opinions on various audio stimuli for a research study. In each trial, you'll listen to a set of audio clips and select the clips you perceive as having the most <strong>warmth</strong> and the most <strong>cold</strong>. Your feedback helps us understand listener preferences and guides future improvements.",
+    "description": "This questionnaire gathers your opinions on the warmth of guitar audio. In each trial, you'll listen to a set of audio clips and select the clips you perceive as having the most <strong>warmth</strong> and the most <strong>cold</strong> per section.",
     "whatToDo": "Instructions:",
     "steps": {
       "listen": "Listen: Play each of the provided audio clips.",
@@ -29,7 +29,7 @@
     "completeMessage": "All Trials Completed!",
     "thankYou": "Thank You for Participating!",
     "resultsMessage": "Here are the final rankings of the stimuli based on your selections:",
-    "restart": "Restart the Questionaire",
+    "restart": "Restart the questionnaire",
     "errorSkipping": "Error skipping trial.",
     "trialSkipped": "Trial skipped successfully!",
     "errorSubmitting": "Error submitting trial.",
