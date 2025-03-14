@@ -15,7 +15,7 @@ from database_utils import DBManager
 # Uncomment the option you prefer:
 # -----------------------------------------------------------------------------
 # Option A: Direct download URL (ensure this file is a valid ZIP file)
-zip_link = "https://drive.google.com/uc?id=1S_G65KqPVLgtXZzTo019jPAzs41_0_4y"
+zip_link = "https://drive.google.com/uc?export=download&id=1S_G65KqPVLgtXZzTo019jPAzs41_0_4y"
 # -----------------------------------------------------------------------------
 # Option B: Original view URL with fuzzy mode enabled:
 # zip_link = "https://drive.google.com/file/d/1S_G65KqPVLgtXZzTo019jPAzs41_0_4y/view?usp=sharing"
