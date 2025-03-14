@@ -36,10 +36,10 @@ def create_sets_of_stimuli(stimuli_ids, repeats=3, set_size=5):
 
 def main():
     # For demonstration purposes, adjust these as needed:
-    folder_path = r"static\Guitar"   # This matches what's in your DB
+    folder_path = r"https://dataset-guitar.s3.ap-southeast-1.amazonaws.com/Guitar/"   # This matches what's in your DB
     repeats = 3                         # Each file should appear this many times total
     set_size = 5                        # How many distinct stimuli in each set
-    sequence_id = 6                     # ID to log in sequence_info
+    sequence_id = 7                  # ID to log in sequence_info
     sequence_name = "Test Sequence Note"
     
     db_manager = DBManager()
