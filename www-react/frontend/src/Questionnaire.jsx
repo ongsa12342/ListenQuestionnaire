@@ -86,7 +86,7 @@ function Questionnaire({ sequenceId, participantName }) {
                     const updatedAudioMap = Object.fromEntries(
                         Object.entries(data.audio_map).map(([key, path]) => [
                             key,
-                            `/${path.replace(/\\/g, "/").trim()}`,
+                            `path.replace(/\\/g, "/").trim()`,
                         ])
                     );
                     setAudioMap(updatedAudioMap);
