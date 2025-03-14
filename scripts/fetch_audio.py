@@ -5,7 +5,7 @@ import gdown
 from database_utils import DBManager
 
 # Public Google Drive folder link
-folder_link = "https://drive.google.com/drive/folders/1EuvBGdClLso0wBFQ24x05McIWxRjgeMT?usp=drive_link"
+folder_link = "https://drive.google.com/drive/folders/1CH7arPsru4ejyj_Wm7dlPY0Np60YJeI7?usp=sharing"
 
 # Extract the folder ID from the URL using regex (still needed for gdown)
 match = re.search(r'folders/([^?]+)', folder_link)
@@ -16,10 +16,10 @@ else:
     exit(1)
 
 # Hardcode folder name as "piano"
-folder_name = "piano"
+folder_name = "Guitar"
 
 # Build the destination directory path (downloading into backend static folder)
-destination_dir = os.path.join("..", "www-react", "backend", "resources", folder_name)
+destination_dir = os.path.join("..", "www-react", "backend", "static", folder_name)
 os.makedirs(destination_dir, exist_ok=True)
 
 # Download the folder using gdown (public link, no authentication needed)
@@ -31,7 +31,7 @@ records = []
 for root, dirs, files in os.walk(destination_dir):
     for file in files:
         # Construct a relative path: "static/piano/<filename>"
-        rel_path = os.path.join("static", folder_name, file)
+        rel_path = os.path.join("resources", folder_name, file)
         description = "File downloaded from public Google Drive folder to static directory"
         records.append((file, rel_path, description))
 

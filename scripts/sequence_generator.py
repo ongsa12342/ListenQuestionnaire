@@ -4,23 +4,42 @@ import time
 from datetime import datetime
 from database_utils import DBManager
 
-def generate_trials(stimuli, choice_set_size, n_trials):
+def create_sets_of_stimuli(stimuli_ids, repeats=3, set_size=5):
     """
-    Generate a list of trials, where each trial is a list
-    of `choice_set_size` distinct stimulus IDs.
+    Given a list of stimulus IDs, each should appear `repeats` times overall.
+    We then form sets of size `set_size` with distinct IDs until we cannot
+    form a complete set. Returns a tuple (all_sets, leftover).
+
+    all_sets is a list of lists (each sub-list is a distinct set of IDs).
+    leftover is the list of IDs that are left unused because they
+    could not form a complete set.
     """
-    return [
-        random.sample(stimuli, choice_set_size)
-        for _ in range(n_trials)
-    ]
+    # Initialize the count for each stimulus
+    file_counts = {sid: repeats for sid in stimuli_ids}
+    all_sets = []
+
+    # Keep forming sets until we don't have enough distinct items left
+    while sum(1 for count in file_counts.values() if count > 0) >= set_size:
+        # Collect all available stimuli
+        available_files = [sid for sid, count in file_counts.items() if count > 0]
+        # Randomly sample 'set_size' distinct stimuli
+        group = random.sample(available_files, set_size)
+        # Decrement the count of each chosen stimulus
+        for sid in group:
+            file_counts[sid] -= 1
+        all_sets.append(group)
+
+    # Anything left that couldn't form a full set
+    leftover = [sid for sid, count in file_counts.items() for _ in range(count)]
+
+    return all_sets, leftover
 
 def main():
-    folder_path = r"D:\Desktop\Piano"
-    choice_set_size = 3
-    n_trials = 5
-    # If you want each new sequence to have a unique ID, set it here
-    # e.g., read from a config or generate programmatically
-    sequence_id = 5
+    # For demonstration purposes, adjust these as needed:
+    folder_path = r"static\Guitar"   # This matches what's in your DB
+    repeats = 3                         # Each file should appear this many times total
+    set_size = 5                        # How many distinct stimuli in each set
+    sequence_id = 6                     # ID to log in sequence_info
     sequence_name = "Test Sequence Note"
     
     db_manager = DBManager()
@@ -33,29 +52,36 @@ def main():
         df_filtered = df_resources.loc[df_resources["folder_paths"] == folder_path, "id"]
         stimuli_ids = df_filtered.tolist()
 
-        # 3) Generate the trials
-        data = generate_trials(stimuli_ids, choice_set_size, n_trials)
+        if not stimuli_ids:
+            print(f"No resources found in DB for folder path: {folder_path}")
+            return
+
+        # 3) Use our new logic to create the sets
+        all_sets, leftover = create_sets_of_stimuli(stimuli_ids, repeats, set_size)
+        
+        if leftover:
+            print("Warning: leftover items that could not form a complete set:", leftover)
 
         # 4) Build the DataFrame rows for our "sequences" table
-        df_data = [
-            [sequence_id, stim_id, trial_idx, order_idx]
-            for trial_idx, trial_pair in enumerate(data)
-            for order_idx, stim_id in enumerate(trial_pair)
-        ]
+        df_data = []
+        for trial_idx, group in enumerate(all_sets):
+            for order_idx, stim_id in enumerate(group):
+                df_data.append([sequence_id, stim_id, trial_idx, order_idx])
+        
         df_final = pd.DataFrame(df_data, columns=["sequence_id", "stimuli_id", "trial", "index_order"])
         
         print("Trial DataFrame (for 'sequences' table):")
         print(df_final)
 
         # 5) Insert a row into "sequence_info"
-        #    We'll use a single-row DataFrame to match the DB structure
         df_sequence_info = pd.DataFrame([{
             "sequence_id": sequence_id,
             "sequence_name": sequence_name,
             "time_created": datetime.now(),  # current timestamp
             "folder_path": folder_path,
-            "choice_set_size": choice_set_size,
-            "n_trials": n_trials
+            "choice_set_size": set_size,
+            # Instead of "n_trials", we can store how many sets were actually created
+            "n_trials": len(all_sets)
         }])
         
         print("\nSequence Info DataFrame (for 'sequence_info' table):")

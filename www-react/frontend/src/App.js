@@ -11,7 +11,7 @@ import "./i18n"; // Ensure this is imported so i18next is initialized
 
 function App() {
   const [participantName, setParticipantName] = useState("");
-  const sequenceId = 5; // Set your sequenceId accordingly
+  const sequenceId = 6; // Set your sequenceId accordingly
 
   return (
     <>
