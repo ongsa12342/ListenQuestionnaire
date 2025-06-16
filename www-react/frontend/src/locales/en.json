@@ -11,6 +11,9 @@
     "finalNote": "This study is conducted as part of my senior project at FIBO KMUTT and is exclusively for research purposes.",
     "nameLabel": "Your Name",
     "nameError": "Please enter your name to continue.",
+    "equipmentLabel": "Headphone/Speaker Brand",
+    "equipmentError": "Please enter your headphone/speaker brand to continue.",
+    "equipmentPlaceholder": "e.g., Sony WH-1000XM4, Audio-Technica ATH-M50x, etc.",
     "consentText": "I consent to the collection and use of my data for research purposes.",
     "consentError": "Please agree to proceed.",
     "startButton": "Start Questionnaire"

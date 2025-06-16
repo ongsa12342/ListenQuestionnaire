@@ -394,12 +394,6 @@ function Questionnaire({ sequenceId, participantName }) {
                     alignItems: "center",
                 }}
             >
-                <Typography variant="body2">
-                    {t("questionnaire.trialInfo", {
-                        current: currentTrialIndex + 1,
-                        total: trials.length,
-                    })}
-                </Typography>
                 <Typography variant="body2" color="primary">
                     {formatTime(timeUsed)}
                 </Typography>

@@ -36,21 +36,32 @@ V_values = {}
 ################################################################################
 # 2) Utility: get or create participant
 ################################################################################
-def get_or_create_participant(participant_name):
+def get_or_create_participant(participant_name, participant_equipment=""):
     """
-    Look up participant in DB by name; if not found, create and return its ID.
+    Look up participant in DB by name and equipment; if not found, create and return its ID.
     """
     db_manager.connect()
     df_participants = db_manager.read_table("participants")
-    existing = df_participants[df_participants["participant_name"] == participant_name]
+    existing = df_participants[
+        (df_participants["participant_name"] == participant_name)
+        & (df_participants["equipments"] == participant_equipment)
+    ]
     if not existing.empty:
         participant_id = int(existing.iloc[0]["id"])
     else:
-        new_row = pd.DataFrame([{"participant_name": participant_name}])
+        new_row = pd.DataFrame(
+            [
+                {
+                    "participant_name": participant_name,
+                    "equipments": participant_equipment,
+                }
+            ]
+        )
         db_manager.append_table("participants", new_row)
         df_participants = db_manager.read_table("participants")
         new_entry = df_participants[
-            df_participants["participant_name"] == participant_name
+            (df_participants["participant_name"] == participant_name)
+            & (df_participants["equipments"] == participant_equipment)
         ]
         if new_entry.empty:
             raise Exception("Failed to add new participant.")
@@ -124,7 +135,7 @@ def submit_trial(sequence_id, trial_index):
         "worst_stimulus": 456,
         "resources_in_trial": [123, 456, 789]
       }
-    Then updates “V” for best/worst, saves trial results in DB.
+    Then updates "V" for best/worst, saves trial results in DB.
     """
     data = request.json
     participant_name = data.get("participant_name")
@@ -140,27 +151,34 @@ def submit_trial(sequence_id, trial_index):
 
     participant_id = get_or_create_participant(participant_name)
 
-    # Insert row into “trial_results”
+    # Insert row into "trial_results"
     db_manager.connect()
-    df_trial = pd.DataFrame([{
-        "participant_id": participant_id,
-        "sequence_id": sequence_id,
-        "trial_index": trial_index,
-        "best_stimulus": best_res_id,
-        "worst_stimulus": worst_res_id,
-        "submitted_at": datetime.datetime.now()
-    }])
+    df_trial = pd.DataFrame(
+        [
+            {
+                "participant_id": participant_id,
+                "sequence_id": sequence_id,
+                "trial_index": trial_index,
+                "best_stimulus": best_res_id,
+                "worst_stimulus": worst_res_id,
+                "submitted_at": datetime.datetime.now(),
+            }
+        ]
+    )
     db_manager.append_table("trial_results", df_trial)
 
     return jsonify({"message": "Submitted successfully"})
 
 
-@app.route("/api/trials/<int:sequence_id>/<int:trial_index>/submit_similar", methods=["POST"])
+@app.route(
+    "/api/trials/<int:sequence_id>/<int:trial_index>/submit_similar", methods=["POST"]
+)
 def submit_trial_similar(sequence_id, trial_index):
     """
     Receives JSON:
       {
         "participant_name": "Alice",
+        "participant_equipment": "Sony WH-1000XM4",
         "ratings": {
             "stimulus_id1": rating_value1,
             "stimulus_id2": rating_value2,
@@ -172,13 +190,14 @@ def submit_trial_similar(sequence_id, trial_index):
     """
     data = request.json
     participant_name = data.get("participant_name")
+    participant_equipment = data.get("participant_equipment", "")
     ratings = data.get("ratings", {})
     resources_in_trial = data.get("resources_in_trial", [])
 
     if not participant_name or not resources_in_trial:
         return jsonify({"error": "Missing required fields"}), 400
 
-    participant_id = get_or_create_participant(participant_name)
+    participant_id = get_or_create_participant(participant_name, participant_equipment)
     reference_id = resources_in_trial[0]  # First resource is always reference
 
     # Insert rows into "similarity_ratings"

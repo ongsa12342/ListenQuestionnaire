@@ -5,8 +5,12 @@ USE experiment;
 -- 2) Create the participants table
 CREATE TABLE IF NOT EXISTS participants (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    participant_name VARCHAR(255)
+    participant_name VARCHAR(255),
+    equipments VARCHAR(255)
 );
+
+-- Add equipments column if it doesn't exist
+ALTER TABLE participants ADD COLUMN IF NOT EXISTS equipments VARCHAR(255);
 
 -- 3) Create the resources table
 CREATE TABLE IF NOT EXISTS resources (

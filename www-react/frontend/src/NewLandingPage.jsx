@@ -18,15 +18,21 @@ function NewLandingPage() {
     const navigate = useNavigate();
     const { t, i18n } = useTranslation();
     const [name, setName] = useState("");
-    const [error, setError] = useState(false);
+    const [equipment, setEquipment] = useState("");
+    const [nameError, setNameError] = useState(false);
+    const [equipmentError, setEquipmentError] = useState(false);
     const [agreed, setAgreed] = useState(false);
     const [agreeError, setAgreeError] = useState(false);
 
-    // Load participant name from cookie if it exists
+    // Load participant name and equipment from cookie if they exist
     useEffect(() => {
         const savedName = Cookies.get("participantName");
+        const savedEquipment = Cookies.get("participantEquipments");
         if (savedName) {
             setName(savedName);
+        }
+        if (savedEquipment) {
+            setEquipment(savedEquipment);
         }
     }, []);
 
@@ -40,19 +46,34 @@ function NewLandingPage() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        let hasError = false;
+
         if (name.trim() === "") {
-            setError(true);
-            return;
+            setNameError(true);
+            hasError = true;
+        } else {
+            setNameError(false);
         }
+
+        if (equipment.trim() === "") {
+            setEquipmentError(true);
+            hasError = true;
+        } else {
+            setEquipmentError(false);
+        }
+
         if (!agreed) {
             setAgreeError(true);
-            return;
+            hasError = true;
+        } else {
+            setAgreeError(false);
         }
-        setError(false);
-        setAgreeError(false);
 
-        // Save the participant name in a cookie (expires in 7 days)
+        if (hasError) return;
+
+        // Save the participant name and equipment in cookies (expires in 7 days)
         Cookies.set("participantName", name, { expires: 7 });
+        Cookies.set("participantEquipments", equipment, { expires: 7 });
 
         // Navigate to the questionnaire
         navigate('/ex2/questionnaire');
@@ -141,9 +162,26 @@ function NewLandingPage() {
                             variant="outlined"
                             fullWidth
                             value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            error={error}
-                            helperText={error ? t("landingPage.nameError") : ""}
+                            onChange={(e) => {
+                                setName(e.target.value);
+                                setNameError(false);
+                            }}
+                            error={nameError}
+                            helperText={nameError ? t("landingPage.nameError") : ""}
+                        />
+
+                        <TextField
+                            label={t("landingPage.equipmentLabel")}
+                            variant="outlined"
+                            fullWidth
+                            value={equipment}
+                            onChange={(e) => {
+                                setEquipment(e.target.value);
+                                setEquipmentError(false);
+                            }}
+                            error={equipmentError}
+                            helperText={equipmentError ? t("landingPage.equipmentError") : ""}
+                            placeholder={t("landingPage.equipmentPlaceholder")}
                         />
 
                         <Box>

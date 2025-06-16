@@ -342,6 +342,7 @@ function SimilarityQuestionnaire({ sequenceId, participantName }) {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 participant_name: participantName,
+                participant_equipment: Cookies.get("participantEquipments") || "",
                 ratings: ratings,
                 resources_in_trial: trials[currentTrialIndex],
             }),
