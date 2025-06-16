@@ -352,9 +352,6 @@ function SimilarityQuestionnaire({ sequenceId, participantName }) {
                     showSnackbar(t("similarityQuestionnaire.errorSubmitting"), "error");
                 } else {
                     showSnackbar(t("similarityQuestionnaire.trialSubmitted"), "success");
-                    if (currentTrialIndex + 1 >= trials.length) {
-                        showSnackbar(t("similarityQuestionnaire.completeMessage"), "success");
-                    }
                     setCurrentTrialIndex((i) => i + 1);
                 }
             })
@@ -400,7 +397,7 @@ function SimilarityQuestionnaire({ sequenceId, participantName }) {
                                     <Grid container spacing={2}>
                                         <Grid item xs={6}>
                                             <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>
-                                                Reference Sound
+                                                {t("similarityQuestionnaire.referenceSound")}
                                             </Typography>
                                             <Box sx={{
                                                 p: 2,
@@ -428,7 +425,7 @@ function SimilarityQuestionnaire({ sequenceId, participantName }) {
                                         </Grid>
                                         <Grid item xs={6}>
                                             <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>
-                                                Predicted Sound
+                                                {t("similarityQuestionnaire.predictedSound")}
                                             </Typography>
                                             <Box sx={{
                                                 p: 2,

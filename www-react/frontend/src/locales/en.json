@@ -68,11 +68,11 @@
     }
   },
   "similarityQuestionnaire": {
-    "title": "Similarity Assessment",
-    "description": "Rate how similar each condition sounds compared to the reference audio",
+    "title": "Audio Similarity Assessment",
+    "description": "Rate how similar each simulated sound is compared to the original sound",
     "trialInfo": "Trial {{current}} of {{total}}",
     "participant": "Participant: {{participantName}}",
-    "reference": "Reference",
+    "reference": "Original Amp Sound",
     "pause": "Pause",
     "play": "Play",
     "condition": "Condition",
@@ -84,14 +84,14 @@
     "bad": "Bad",
     "score": "Score",
     "thankYou": "Thank You for Participating!",
-    "resultsMessage": "Here are your results comparing reference and predicted sounds for each amplifier:",
+    "resultsMessage": "Here are the results of the amp simulations",
     "restart": "Restart the questionnaire",
-    "finalizeResults": "Finalize and See Results",
-    "completeMessage": "All Trials Completed!",
     "loading": "Loading...",
-    "noTrials": "No trials available.",
-    "errorSubmitting": "Error submitting trial.",
+    "noTrials": "No trials available",
+    "errorSubmitting": "Error submitting trial",
     "trialSubmitted": "Trial submitted successfully!",
-    "rateAll": "Please rate all audio clips before submitting"
+    "rateAll": "Please rate all audio clips before submitting",
+    "referenceSound": "Original Amp Sound",
+    "predictedSound": "Simulated Amp Sound"
   }
 }
