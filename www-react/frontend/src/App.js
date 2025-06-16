@@ -6,6 +6,7 @@ import Questionnaire from "./Questionnaire";
 import SimilarityQuestionnaire from "./SimilarityQuestionnaire";
 import LandingPage from "./LandingPage";
 import NewLandingPage from "./NewLandingPage";
+import NotFoundPage from './NotFoundPage';
 import "./i18n";
 import Cookies from "js-cookie";
 
@@ -31,7 +32,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <BrowserRouter basename="/">
+      <BrowserRouter>
         <Routes>
           <Route path="/" element={<Navigate to="/ex1" replace />} />
           <Route
@@ -57,6 +58,7 @@ function App() {
               />
             }
           />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
