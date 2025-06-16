@@ -12,11 +12,17 @@ RUN npm install
 COPY . .
 
 # Build React app for production
+ENV NODE_ENV=production
 RUN npm run build
 
 # Stage 2: Serve with Nginx
 FROM nginx:alpine
 COPY --from=build /app/build /usr/share/nginx/html
 COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+
+# Add a healthcheck
+HEALTHCHECK --interval=30s --timeout=3s \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:80/ || exit 1
+
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
