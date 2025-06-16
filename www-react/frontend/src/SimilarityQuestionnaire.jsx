@@ -174,7 +174,6 @@ function SimilarityQuestionnaire({ sequenceId, participantName }) {
         message: "",
         severity: "info",
     });
-    const [finalResults, setFinalResults] = useState(null);
     const [currentAudioSrc, setCurrentAudioSrc] = useState("");
     const [timeUsed, setTimeUsed] = useState(0);
     const [playingResourceId, setPlayingResourceId] = useState(null);
@@ -353,6 +352,9 @@ function SimilarityQuestionnaire({ sequenceId, participantName }) {
                     showSnackbar(t("similarityQuestionnaire.errorSubmitting"), "error");
                 } else {
                     showSnackbar(t("similarityQuestionnaire.trialSubmitted"), "success");
+                    if (currentTrialIndex + 1 >= trials.length) {
+                        showSnackbar(t("similarityQuestionnaire.completeMessage"), "success");
+                    }
                     setCurrentTrialIndex((i) => i + 1);
                 }
             })
@@ -363,35 +365,12 @@ function SimilarityQuestionnaire({ sequenceId, participantName }) {
             .finally(() => setLoading(false));
     }
 
-    function handleFinish() {
-        setLoading(true);
-        fetch(`/api/trials/${sequenceId}/finalize`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ participant_name: participantName }),
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.error) {
-                    showSnackbar(data.error, "error");
-                } else {
-                    setFinalResults(data.sorted_stimuli);
-                    showSnackbar(t("similarityQuestionnaire.completeMessage"), "success");
-                }
-            })
-            .catch((err) => {
-                showSnackbar("Error finalizing results.", "error");
-                console.error(err);
-            })
-            .finally(() => setLoading(false));
-    }
+    const handleRestart = () => {
+        Cookies.remove("similarityTrialIndex");
+        window.location.reload();
+    };
 
-    if (finalResults) {
-        const handleRestart = () => {
-            Cookies.remove("similarityTrialIndex");
-            window.location.reload();
-        };
-
+    if (currentTrialIndex >= trials.length && trials.length > 0) {
         return (
             <Container maxWidth="md" sx={{ mt: 5, textAlign: "center" }}>
                 <Box sx={{ backgroundColor: "white", borderRadius: 3, boxShadow: 3, p: 4 }}>
@@ -403,7 +382,7 @@ function SimilarityQuestionnaire({ sequenceId, participantName }) {
                         {t("similarityQuestionnaire.resultsMessage")}
                     </Typography>
                     <Fade in={true} timeout={600}>
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                        <Box sx={{ mt: 4 }}>
                             {audioPairs.map((pair) => (
                                 <Paper
                                     key={pair.id}
@@ -411,7 +390,8 @@ function SimilarityQuestionnaire({ sequenceId, participantName }) {
                                     sx={{
                                         p: 3,
                                         backgroundColor: 'background.paper',
-                                        borderRadius: 2
+                                        borderRadius: 2,
+                                        mb: 3
                                     }}
                                 >
                                     <Typography variant="h5" gutterBottom sx={{ color: 'primary.main', fontWeight: 'bold' }}>
@@ -433,7 +413,7 @@ function SimilarityQuestionnaire({ sequenceId, participantName }) {
                                                 </Typography>
                                             </Box>
                                             <ReactAudioPlayer
-                                                key={`ref-${pair.id}}`}
+                                                key={`ref-${pair.id}`}
                                                 src={pair.reference.url}
                                                 controls
                                                 style={{ width: '100%' }}
@@ -461,7 +441,7 @@ function SimilarityQuestionnaire({ sequenceId, participantName }) {
                                                 </Typography>
                                             </Box>
                                             <ReactAudioPlayer
-                                                key={`pred-${pair.id}}`}
+                                                key={`pred-${pair.id}`}
                                                 src={pair.predicted.url}
                                                 controls
                                                 style={{ width: '100%' }}
@@ -488,22 +468,6 @@ function SimilarityQuestionnaire({ sequenceId, participantName }) {
                         {t("similarityQuestionnaire.restart")}
                     </Button>
                 </Box>
-            </Container>
-        );
-    }
-
-    if (currentTrialIndex >= trials.length && trials.length > 0) {
-        return (
-            <Container maxWidth="md" sx={{ mt: 5, textAlign: "center" }}>
-                <Typography variant="h4" gutterBottom>
-                    {t("similarityQuestionnaire.completeMessage")}
-                </Typography>
-                <Typography variant="body1" sx={{ mb: 3 }}>
-                    {t("similarityQuestionnaire.participant", { participantName })}
-                </Typography>
-                <Button variant="contained" onClick={handleFinish}>
-                    {t("similarityQuestionnaire.finalizeResults")}
-                </Button>
             </Container>
         );
     }
