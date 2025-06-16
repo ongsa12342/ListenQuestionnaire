@@ -17,6 +17,7 @@
     "react-dom": "^19.0.0",
     "react-h5-audio-player": "^3.10.0-rc.1",
     "react-i18next": "^15.4.1",
+    "react-router-dom": "^7.6.2",
     "react-scripts": "5.0.1",
     "sass": "^1.85.1",
     "web-vitals": "^2.1.4"

@@ -39,5 +39,59 @@
     "doTrialAgain": "Do it again",
     "resetAndRestart": "Reset and Restart",
     "finalizeResults": "Finalize and See Results"
+  },
+  "similarityAssessment": {
+    "title": "Audio Similarity Assessment",
+    "description": "This questionnaire assesses how similar each guitar clip sounds compared to the original recording. In each trial, you'll hear several versions of the same guitar passage processed by different models. Your task is to rate each clip's resemblance to the hidden reference.",
+    "steps": {
+      "listen": {
+        "title": "1. Listen",
+        "instruction1": "Click the ▶ button beside each clip to play it.",
+        "instruction2": "Feel free to replay as often as needed to judge similarity."
+      },
+      "rate": {
+        "title": "2. Rate",
+        "instruction": "Use the slider under each clip to indicate similarity to the reference:",
+        "scale": "0 = Not Similar at All | 50 = Moderately Similar | 100 = Indistinguishable from Reference",
+        "note1": "The true reference (original) is included but cannot be rated.",
+        "note2": "A low‐quality anchor is hidden among the clips to help anchor your judgments."
+      },
+      "submit": {
+        "title": "3. Submit",
+        "instruction1": "After rating all clips in the set, click Submit to move on.",
+        "instruction2": "You'll then proceed to the next trial with a new guitar excerpt."
+      }
+    },
+    "buttons": {
+      "goToWarmth": "Go to Warmth Assessment",
+      "startSimilarity": "Start Similarity Assessment"
+    }
+  },
+  "similarityQuestionnaire": {
+    "title": "Similarity Assessment",
+    "description": "Rate how similar each condition sounds compared to the reference audio",
+    "trialInfo": "Trial {{current}} of {{total}}",
+    "participant": "Participant: {{participantName}}",
+    "reference": "Reference",
+    "pause": "Pause",
+    "play": "Play",
+    "condition": "Condition",
+    "submit": "Submit",
+    "excellent": "Excellent",
+    "good": "Good",
+    "fair": "Fair",
+    "poor": "Poor",
+    "bad": "Bad",
+    "score": "Score",
+    "thankYou": "Thank You for Participating!",
+    "resultsMessage": "Here are your results comparing reference and predicted sounds for each amplifier:",
+    "restart": "Restart the questionnaire",
+    "finalizeResults": "Finalize and See Results",
+    "completeMessage": "All Trials Completed!",
+    "loading": "Loading...",
+    "noTrials": "No trials available.",
+    "errorSubmitting": "Error submitting trial.",
+    "trialSubmitted": "Trial submitted successfully!",
+    "rateAll": "Please rate all audio clips before submitting"
   }
 }

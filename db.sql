@@ -90,3 +90,42 @@ CREATE TABLE IF NOT EXISTS final_scores (
     FOREIGN KEY (resource_id) REFERENCES resources(id),
     FOREIGN KEY (sequence_id) REFERENCES sequence_info(sequence_id)
 );
+
+CREATE TABLE IF NOT EXISTS similarity_ratings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    participant_id INT NOT NULL,        -- references participants(id)
+    sequence_id INT NOT NULL,           -- references sequence_info(sequence_id)
+    trial_index INT NOT NULL,           -- which trial? (0, 1, 2, ...)
+    reference_stimulus INT NOT NULL,    -- references resources(id)
+    rated_stimulus INT NOT NULL,        -- references resources(id)
+    rating_value INT NOT NULL,          -- 0-100 rating value
+    submitted_at DATETIME NOT NULL,     -- when did user press "Submit"?
+    FOREIGN KEY (participant_id) REFERENCES participants(id),
+    FOREIGN KEY (reference_stimulus) REFERENCES resources(id),
+    FOREIGN KEY (rated_stimulus) REFERENCES resources(id),
+    FOREIGN KEY (sequence_id) REFERENCES sequence_info(sequence_id)
+);
+
+CREATE TABLE IF NOT EXISTS trial_stimulus_roles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sequence_id INT NOT NULL,
+    trial_index INT NOT NULL,
+    stimuli_id INT NOT NULL,
+    role VARCHAR(50) NOT NULL, -- e.g., 'reference', 'anchor', 'condition'
+    FOREIGN KEY (sequence_id) REFERENCES sequence_info(sequence_id),
+    FOREIGN KEY (stimuli_id) REFERENCES resources(id),
+    UNIQUE KEY `unique_role_per_trial` (`sequence_id`, `trial_index`, `stimuli_id`)
+);
+
+CREATE TABLE IF NOT EXISTS similarity_final_scores (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    participant_id INT NOT NULL,        -- references participants(id)
+    sequence_id INT NOT NULL,           -- references sequence_info(sequence_id)
+    resource_id INT NOT NULL,           -- references resources(id)
+    average_similarity FLOAT NOT NULL,  -- average similarity score (0-100)
+    rank_position INT NOT NULL,         -- rank based on similarity (1=most similar)
+    computed_at DATETIME NOT NULL,      -- when scores were computed
+    FOREIGN KEY (participant_id) REFERENCES participants(id),
+    FOREIGN KEY (resource_id) REFERENCES resources(id),
+    FOREIGN KEY (sequence_id) REFERENCES sequence_info(sequence_id)
+);
