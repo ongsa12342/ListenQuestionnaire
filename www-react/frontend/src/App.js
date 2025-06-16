@@ -57,7 +57,6 @@ function App() {
               />
             }
           />
-          <Route path="*" element={<Navigate to="/ex1" />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
