@@ -31,9 +31,9 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <BrowserRouter>
+      <BrowserRouter basename="/">
         <Routes>
-          <Route path="/" element={<Navigate to="/ex1" />} />
+          <Route path="/" element={<Navigate to="/ex1" replace />} />
           <Route
             path="/ex1"
             element={
