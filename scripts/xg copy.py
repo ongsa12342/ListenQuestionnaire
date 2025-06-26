@@ -171,7 +171,12 @@ engine = db_manager.connect()
 # 1) Read the relevant rows from `trial_results`
 df_results = db_manager.read_table("trial_results", engine)
 df_results = df_results[
-    (df_results["participant_id"] == 10) & # 6 8 9 10
+    (
+    (df_results["participant_id"] == 6) |
+    (df_results["participant_id"] == 8) |
+    (df_results["participant_id"] == 9) |
+    (df_results["participant_id"] == 10)
+    ) &
     (df_results["sequence_id"] == 7)
 ].copy()
 
@@ -309,29 +314,31 @@ for train_index, val_index in kfold.split(X_train):
     fold += 1
 
 
-# plt.plot(y_test.sort_values(ascending=False).values)
+plt.plot(y_test.sort_values(ascending=False).values)
 
 
-# # 3. Train final model on all training data
-# final_model = xgb.XGBRegressor(objective='reg:squarederror', random_state=42, learning_rate=0.1,n_estimators=10000)
-# final_model.fit(X_train, y_train)
+# 3. Train final model on all training data
+final_model = xgb.XGBRegressor(objective='reg:squarederror', random_state=42, learning_rate=0.1,n_estimators=10000)
+final_model.fit(X_train, y_train)
 
-# # 4. Evaluate on the hold-out test set
-# y_pred_test = final_model.predict(X_test)
+print("min: ", min(y_train)," max: ", max(y_train))
 
-# # plt.plot(y_pred_test.sort_values(ascending=False).values)
-# # plt.title("Final Scores")
-# # plt.show()
-# mse_test = mean_squared_error(y_test, y_pred_test)
-# mae_test = mean_absolute_error(y_test, y_pred_test)
-# rmse_test = np.sqrt(mse_test)
+# 4. Evaluate on the hold-out test set
+y_pred_test = final_model.predict(X_test)
 
-# print("\nFinal Model Metrics on Test Set:")
-# print(f"MSE: {mse_test:.4f}, RMSE: {rmse_test:.4f}, MAE: {mae_test:.4f}")
+# plt.plot(y_pred_test.sort_values(ascending=False).values)
+# plt.title("Final Scores")
+# plt.show()
+mse_test = mean_squared_error(y_test, y_pred_test)
+mae_test = mean_absolute_error(y_test, y_pred_test)
+rmse_test = np.sqrt(mse_test)
 
-# # # SHAP Explanation (on test set or full train set)
-# explainer = shap.Explainer(final_model)
-# shap_values = explainer(X)
+print("\nFinal Model Metrics on Test Set:")
+print(f"MSE: {mse_test:.4f}, RMSE: {rmse_test:.4f}, MAE: {mae_test:.4f}")
 
-# shap.summary_plot(shap_values, X)
+# # SHAP Explanation (on test set or full train set)
+explainer = shap.Explainer(final_model)
+shap_values = explainer(X)
+
+shap.summary_plot(shap_values, X)
 

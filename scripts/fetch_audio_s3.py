@@ -5,10 +5,10 @@ from database_utils import DBManager
 
 # S3 bucket and prefix
 bucket_name = "dataset-guitar"
-prefix = "Guitar/"  # s3://dataset-guitar/Guitar/
+prefix = "Example/"  # s3://dataset-guitar/Guitar/
 
 # Hardcode folder name used in the DB record
-folder_name = "Guitar"
+folder_name = "Example"
 description = "S3 file reference (no local download)"
 
 # Initialize S3 client
@@ -41,7 +41,7 @@ for obj in objects_response["Contents"]:
     # folder_path = key
     #
     # Option C: mimic your original scheme (e.g. "resources/Guitar/myfile.jpg")
-    folder_path = os.path.join("resources", folder_name, filename)
+    folder_path = os.path.join(r"https://dataset-guitar.s3.ap-southeast-1.amazonaws.com/", folder_name, filename)
 
     records.append((filename, folder_path, description))
 

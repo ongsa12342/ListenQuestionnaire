@@ -10,8 +10,8 @@ engine = db_manager.connect()
 df = db_manager.read_table("resources")
 
 # Print the DataFrame with all rows and columns nicely formatted
-print(df.to_string(index=False))
-
+print(df["filenames"].to_string(index=False))
+print(len(df))
 # Optional pause before closing the connection
 time.sleep(1)
 db_manager.close()
